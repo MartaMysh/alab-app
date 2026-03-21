@@ -1,7 +1,17 @@
 .PHONY: up down build restart logs bash migrate seed import composer npm db php-version
 
 .PHONY: all
-all: build up migrate-refresh import
+all: setup-env build up composer migrate-refresh import npm
+
+setup-env:
+	@echo "Konfiguracja środowiska..."
+	cd backend && \
+	if [ ! -f .env ]; then \
+		cp .env.example .env && \
+		echo ".env został utworzony"; \
+	else \
+		echo ".env już istnieje, nie nadpisuję"; \
+	fi
 
 # Start containers
 up:
@@ -34,10 +44,6 @@ migrate:
 # Laravel migrate refresh
 migrate-refresh:
 	docker exec -it laravel_app php artisan migrate:refresh
-
-# Seed DB
-seed:
-	docker exec -it laravel_app php artisan db:seed
 
 # Import CSV
 import:

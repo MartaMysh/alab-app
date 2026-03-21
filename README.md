@@ -1,17 +1,49 @@
 # System Wyników Badań Pacjentów
 
 ## Opis projektu
-Projekt umożliwia:
-- Import danych pacjentów i wyników badań z pliku CSV (`results.csv`).
-- Udostępnianie wyników poprzez API z autoryzacją JWT.
-- Wyświetlanie danych pacjenta i wyników badań na frontendzie Vue.js.
-- Lokalną pracę z Dockerem i automatyzację CI/CD (GitLab).
+Kompletny system do zarządzania danymi pacjentów oraz ich wynikami badań laboratoryjnych.
+Projekt obejmuje:
 
----
+- import danych z pliku CSV,
+- backend API z autoryzacją JWT (Laravel),
+- frontend w Vue.js,
+- środowisko uruchamiane w Dockerze,
+- automatyzację CI/CD (GitLab).
 
 ## Uruchomienie lokalne (Docker + Makefile)
 
 W repozytorium znajduje się **Makefile**, który ułatwia uruchomienie całego środowiska.
+
+```bash
+make all
+```
+Polecenie wykonuje:
+- budowę kontenerów Docker,
+- instalację zależności backendu i frontend,
+- migracje bazy danych,
+- import danych pacjentów i wyników badań.
+
+<span style="font-size: 20px;">Alternatywna procedura krok po kroku</span>
+
+Jeśli make all nie powiedzie się lub chcesz wykonać kroki ręcznie:
+
+```bash
+cd backend
+cp .env.example .env
+docker-compose build --no-cache
+docker-compose up -d
+
+docker exec -it laravel_app composer install
+docker exec -it laravel_app php artisan migrate
+docker exec -it laravel_app php artisan app:import-patient-data results.csv
+
+docker exec -it vue_app npm install
+
+docker exec -it laravel_app php artisan jwt:secret
+```
+Po wygenerowaniu sekretu JWT należy wkleić go do pliku .env.
+
+Każdy krok powinien zakończyć się sukcesem przed przejściem dalej.
 
 ### Dostępne komendy Makefile:
 
@@ -32,11 +64,6 @@ W repozytorium znajduje się **Makefile**, który ułatwia uruchomienie całego 
 | `make db` | Wejście do powłoki PostgreSQL |
 | `make php-version` | Sprawdzenie wersji PHP w kontenerze |
 
-### Przykładowe uruchomienie projektu
-```bash
-make all
-```
-make all wykona kolejno: budowę kontenerów, uruchomienie środowiska, odświeżenie migracji i import CSV.
 
 ### Import danych CSV
 Plik: `results.csv`
@@ -46,25 +73,30 @@ patientId	patientName	patientSurname	patientSex	patientBirthDate	orderId	testNam
 ### Import danych do bazy:
 `make import`
 
-Logi błędów i poprawnie zaimportowanych rekordów zapisane w storage/logs/import.log.
+Logi:
+- błędy → storage/logs/import_errors.log
+- poprawne rekordy → storage/logs/import_success.log
+
 ## API
 ### Logowanie
 
 `POST /api/login`
-
+```bash
 Body JSON:
 
 {
   "login": "PiotrKowalski",
   "password": "1983-04-12"
 }
+```
 Zwraca token JWT, który będzie używany do autoryzacji dalszych zapytań.
-Pobieranie wyników
+
+### Pobieranie wyników
 
 `GET /api/results`
 
 Nagłówek:
-Authorization: Bearer <token>
+`Authorization: Bearer <token>`
 ```bash
 Przykładowa odpowiedź:
 {
@@ -109,13 +141,24 @@ Domyślnie frontend dostępny na: http://localhost:5173/.
 
 ## Baza danych
 - Obsługuje pacjentów, zamówienia i wyniki badań.
-- Baza danych PostgreSQL
+- Baza danych (Postgres):
+
+        Host: localhost
+
+        Port: 5439
+
+        Użytkownik: postgres
+
+        Hasło: postgres
+
+        Baza: medical
+
 - Po uruchomieniu kontenera Laravel migracje można wykonać komendą:
 `make migrate`
+
 
 ## CI/CD (GitLab)
 Plik konfiguracyjny: .gitlab-ci.yml
 
 ## Uruchomić testy
-
 `docker exec -it laravel_app php artisan test`
