@@ -9,7 +9,7 @@
         <Form
             :validation-schema="schema"
             class="space-y-6"
-            v-slot="{ handleSubmit }"
+            @submit="onSubmit"
         >
           <div>
             <label for="login" class="block text-sm font-medium text-gray-700">
@@ -19,7 +19,7 @@
                 name="login"
                 type="text"
                 id="login"
-                placeholder="tylko małe litery a–z"
+                placeholder="ImieNazwisko"
                 class="block w-full rounded-md border border-gray-300 px-3 py-2"
             />
             <ErrorMessage name="login" class="text-red-500 text-xs mt-1" />
@@ -33,7 +33,7 @@
                 name="password"
                 type="password"
                 id="password"
-                placeholder="dokładnie 8 cyfr"
+                placeholder="RRRR-MM-DD"
                 class="block w-full rounded-md border border-gray-300 px-3 py-2"
             />
             <ErrorMessage name="password" class="text-red-500 text-xs mt-1" />
@@ -45,8 +45,7 @@
 
           <div>
             <button
-                type="button"
-                @click="handleSubmit(onSubmit)"
+                type="submit"
                 class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white"
             >
               Zaloguj się
@@ -59,9 +58,10 @@
 </template>
 
 <script setup lang="ts">
-import { Form, Field, ErrorMessage, useForm } from 'vee-validate'
+import { Form, Field, ErrorMessage, useForm, SubmissionHandler } from 'vee-validate'
 import * as Yup from 'yup'
 import { useLogin } from '@/modules/login/composables/useLogin'
+import type {LoginPayload} from "@/modules/login/types/loginType.ts";
 
 const { login, error } = useLogin()
 
@@ -75,11 +75,11 @@ const schema = Yup.object({
       .matches(/^\d{4}-\d{2}-\d{2}$/, 'Format: RRRR-MM-DD'),
 })
 
-useForm({
+useForm<LoginPayload>({
   validationSchema: schema,
 })
 
-const onSubmit = async (values: { login: string; password: string }) => {
+const onSubmit: SubmissionHandler<LoginPayload> = async (values) => {
   await login(values)
 }
 </script>
