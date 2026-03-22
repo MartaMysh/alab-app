@@ -10,6 +10,7 @@
             :validation-schema="schema"
             class="space-y-6"
             @submit="onSubmit"
+            as="form"
         >
           <div>
             <label for="login" class="block text-sm font-medium text-gray-700">
@@ -58,10 +59,14 @@
 </template>
 
 <script setup lang="ts">
-import { Form, Field, ErrorMessage, useForm, SubmissionHandler } from 'vee-validate'
+import { Form, Field, ErrorMessage, useForm } from 'vee-validate'
 import * as Yup from 'yup'
 import { useLogin } from '@/modules/login/composables/useLogin'
-import type {LoginPayload} from "@/modules/login/types/loginType.ts";
+
+interface LoginPayload {
+  login: string
+  password: string
+}
 
 const { login, error } = useLogin()
 
@@ -79,7 +84,7 @@ useForm<LoginPayload>({
   validationSchema: schema,
 })
 
-const onSubmit: SubmissionHandler<LoginPayload> = async (values) => {
+const onSubmit = async (values: LoginPayload) => {
   await login(values)
 }
 </script>
