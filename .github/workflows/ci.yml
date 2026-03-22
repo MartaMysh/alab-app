@@ -2,11 +2,10 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
 
 env:
-  DOCKER_DRIVER: overlay2
   APP_ENV: testing
   DB_CONNECTION: pgsql
   DB_HOST: 127.0.0.1
@@ -37,12 +36,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Install PHP extensions
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y unzip git libpq-dev
-          sudo docker-php-ext-install pdo pdo_pgsql || true
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
