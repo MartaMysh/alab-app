@@ -157,8 +157,15 @@ Domyślnie frontend dostępny na: http://localhost:5173/.
 `make migrate`
 
 
-## CI/CD (GitLab)
-Plik konfiguracyjny: .gitlab-ci.yml
+## CI/CD (GitHab)
+Plik konfiguracyjny: .github/workflows/ci.yml
+
+    - Uruchamia testy jednostkowe i integracyjne dla API.
+    - Buduje aplikację frontendową
+    - Buduje i wypycha obraz Docker
+
+Uruchamia się automatycznie po 
+`git hush origin master`
 
 ## Uruchomić testy
 `docker exec -it laravel_app php artisan test`
