@@ -10,7 +10,6 @@
             :validation-schema="schema"
             class="space-y-6"
             @submit="onSubmit"
-            as="form"
         >
           <div>
             <label for="login" class="block text-sm font-medium text-gray-700">
@@ -84,7 +83,7 @@ useForm<LoginPayload>({
   validationSchema: schema,
 })
 
-const onSubmit = async (values: LoginPayload) => {
+const onSubmit = async (values: any) => {
   await login(values)
 }
 </script>
